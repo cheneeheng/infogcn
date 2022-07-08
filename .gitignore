@@ -5,3 +5,6 @@ __pycache__
 *ipynb
 *.pt
 *.yaml
+
+.devcontainer/
+.vscode/

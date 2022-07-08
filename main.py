@@ -13,7 +13,7 @@ import resource
 from collections import OrderedDict
 
 import apex
-import wandb
+# import wandb
 import torch
 import torch.optim as optim
 import numpy as np
@@ -286,17 +286,17 @@ class Processor():
 
             timer['statistics'] += self.split_time()
 
-        wandb.log({
-            'train/acc': np.mean(acc_value),
-            'train/loss': np.mean(loss_value),
-            'train/mmd_loss': np.mean(mmd_loss_value),
-            'train/l2_z_mean': np.mean(l2_z_mean_value),
-            'train/z_cos': np.mean(cos_z_value),
-            'train/z_dist': np.mean(dis_z_value),
-            'train/z_prior_cos': np.mean(cos_z_prior_value),
-            'train/z_prior_dist': np.mean(dis_z_prior_value),
-            'lr': self.optimizer.param_groups[0]['lr']
-        })
+        # wandb.log({
+        #     'train/acc': np.mean(acc_value),
+        #     'train/loss': np.mean(loss_value),
+        #     'train/mmd_loss': np.mean(mmd_loss_value),
+        #     'train/l2_z_mean': np.mean(l2_z_mean_value),
+        #     'train/z_cos': np.mean(cos_z_value),
+        #     'train/z_dist': np.mean(dis_z_value),
+        #     'train/z_prior_cos': np.mean(cos_z_prior_value),
+        #     'train/z_prior_dist': np.mean(dis_z_prior_value),
+        #     'lr': self.optimizer.param_groups[0]['lr']
+        # })
 
         # statistics of time consumption and loss
         proportion = {
@@ -393,17 +393,17 @@ class Processor():
                     pickle.dump(score_dict, f)
 
             print('Accuracy: ', accuracy, ' model: ', self.arg.model_saved_name)
-            if self.arg.phase == 'train':
-                wandb.log({
-                    'val/loss': cls_loss,
-                    'val/mmd_loss': mmd_loss,
-                    'val/l2_z_mean': l2_z_mean_loss,
-                    'val/acc': accuracy,
-                    'val/z_cos': np.mean(cos_z_value),
-                    'val/z_dist': np.mean(dis_z_value),
-                    'val/z_prior_cos': np.mean(cos_z_prior_value),
-                    'val/z_prior_dist': np.mean(dis_z_prior_value),
-                })
+            # if self.arg.phase == 'train':
+            #     wandb.log({
+            #         'val/loss': cls_loss,
+            #         'val/mmd_loss': mmd_loss,
+            #         'val/l2_z_mean': l2_z_mean_loss,
+            #         'val/acc': accuracy,
+            #         'val/z_cos': np.mean(cos_z_value),
+            #         'val/z_dist': np.mean(dis_z_value),
+            #         'val/z_prior_cos': np.mean(cos_z_prior_value),
+            #         'val/z_prior_dist': np.mean(dis_z_prior_value),
+            #     })
 
 
             # acc for each class:
@@ -464,12 +464,13 @@ def main():
     parser = get_parser()
     arg = parser.parse_args()
     # initialize wandb
-    wandb.init(
-        project="infogcn",
-        dir=arg.log_dir
-    )
-    arg.work_dir = wandb.run.dir
-    wandb.config.update(arg)
+    # wandb.init(
+    #     project="infogcn",
+    #     dir=arg.log_dir
+    # )
+    # arg.work_dir = wandb.run.dir
+    # wandb.config.update(arg)
+    arg.work_dir = arg.log_dir
     init_seed(arg.seed)
     # execute process
     processor = Processor(arg)

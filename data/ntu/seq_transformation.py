@@ -9,7 +9,7 @@ import h5py
 from sklearn.model_selection import train_test_split
 from utils import create_aligned_dataset
 
-root_path = './'
+root_path = './data/ntu'
 stat_path = osp.join(root_path, 'statistics')
 setup_file = osp.join(stat_path, 'setup.txt')
 camera_file = osp.join(stat_path, 'camera.txt')
@@ -18,11 +18,12 @@ replication_file = osp.join(stat_path, 'replication.txt')
 label_file = osp.join(stat_path, 'label.txt')
 skes_name_file = osp.join(stat_path, 'skes_available_name.txt')
 
-denoised_path = osp.join(root_path, 'denoised_data')
+# denoised_path = osp.join(root_path, 'denoised_data')
+denoised_path = osp.join('/code/2s-AGCN/data/data/ntu_sgn', 'denoised_data')
 raw_skes_joints_pkl = osp.join(denoised_path, 'raw_denoised_joints.pkl')
 frames_file = osp.join(denoised_path, 'frames_cnt.txt')
 
-save_path = './'
+save_path = '/code/2s-AGCN/data/data/ntu_sgn/processed_data_infogcn'
 
 
 if not osp.exists(save_path):
@@ -243,4 +244,5 @@ if __name__ == '__main__':
     for evaluation in evaluations:
         split_dataset(skes_joints, label, performer, camera, evaluation, save_path)
 
-    create_aligned_dataset(file_list=['data/ntu/NTU60_CS.npz', 'data/ntu/NTU60_CV.npz'])
+    create_aligned_dataset(file_list=[osp.join(save_path, 'NTU60_CS.npz'),
+                                      osp.join(save_path, 'NTU60_CV.npz')])
