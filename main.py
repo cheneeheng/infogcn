@@ -356,14 +356,15 @@ class Processor():
                     pred_list.append(predict_label.data.cpu().numpy())
                     step += 1
 
-                if wrong_file is not None or result_file is not None:
-                    predict = list(predict_label.cpu().numpy())
-                    true = list(y.data.cpu().numpy())
-                    for i, x in enumerate(predict):
-                        if result_file is not None:
-                            f_r.write(str(x) + ',' + str(true[i]) + '\n')
-                        if x != true[i] and wrong_file is not None:
-                            f_w.write(str(index[i]) + ',' + str(x) + ',' + str(true[i]) + '\n')
+                # if wrong_file is not None or result_file is not None:
+                #     predict = list(predict_label.cpu().numpy())
+                #     true = list(y.data.cpu().numpy())
+                #     for i, x in enumerate(predict):
+                #         if result_file is not None:
+                #             f_r.write(str(x) + ',' + str(true[i]) + '\n')
+                #         if x != true[i] and wrong_file is not None:
+                #             f_w.write(str(index[i]) + ',' + str(x) + ',' + str(true[i]) + '\n')
+                
             score = np.concatenate(score_frag)
             loss = np.mean(loss_value)
             cls_loss = np.mean(cls_loss_value)
