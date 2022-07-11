@@ -306,13 +306,8 @@ class Processor():
         self.print_log(f'\tTraining loss: {np.mean(loss_value):.4f}.  Training acc: {np.mean(acc_value)*100:.2f}%.')
         self.print_log(f'\tTime consumption: [Data]{proportion["dataloader"]}, [Network]{proportion["model"]}')
 
-        if save_model:
-            state_dict = self.model.state_dict()
-            weights = OrderedDict([[k.split('module.')[-1], v.cpu()] for k, v in state_dict.items()])
 
-            torch.save(weights, f'{self.arg.work_dir}/runs-{epoch+1}-{int(self.global_step)}.pt')
-
-    def eval(self, epoch, save_score=False, loader_name=['test'], save_z=False):
+    def eval(self, epoch, save_model=False, save_score=False, loader_name=['test'], save_z=False):
         self.model.eval()
         self.print_log('Eval epoch: {}'.format(epoch + 1))
         for ln in loader_name:
@@ -392,6 +387,10 @@ class Processor():
                 self.best_acc_epoch = epoch + 1
                 with open(f'{self.arg.work_dir}/best_score.pkl', 'wb') as f:
                     pickle.dump(score_dict, f)
+                if save_model:
+                    state_dict = self.model.state_dict()
+                    weights = OrderedDict([[k.split('module.')[-1], v.cpu()] for k, v in state_dict.items()])
+                    torch.save(weights, f'{self.arg.work_dir}/runs-{epoch+1}-{int(self.global_step)}.pt')
 
             print('Accuracy: ', accuracy, ' model: ', self.arg.model_saved_name)
             # if self.arg.phase == 'train':
@@ -405,7 +404,6 @@ class Processor():
             #         'val/z_prior_cos': np.mean(cos_z_prior_value),
             #         'val/z_prior_dist': np.mean(dis_z_prior_value),
             #     })
-
 
             # acc for each class:
             label_list = np.concatenate(label_list)
@@ -423,22 +421,23 @@ class Processor():
                 return sum(p.numel() for p in model.parameters() if p.requires_grad)
             self.print_log(f'# Parameters: {count_parameters(self.model)}')
             for epoch in range(self.arg.start_epoch, self.arg.num_epoch):
-                save_model = (epoch + 1 == self.arg.num_epoch) and (epoch + 1 > self.arg.save_epoch)
-
-                self.train(epoch, save_model=save_model)
-
+                save_model = epoch + 1 > self.arg.save_epoch
+                self.train(epoch)
                 # if epoch > 80:
-                self.eval(epoch, save_score=self.arg.save_score, loader_name=['test'])
+                self.eval(epoch, save_model=save_model, save_score=self.arg.save_score, loader_name=['test'])
+
+            state_dict = self.model.state_dict()
+            weights = OrderedDict([[k.split('module.')[-1], v.cpu()] for k, v in state_dict.items()])
+            torch.save(weights, f'{self.arg.work_dir}/final-runs-{epoch+1}-{int(self.global_step)}.pt')
 
             # test the best model
-            weights_path = glob.glob(os.path.join(self.arg.work_dir, 'runs-'+str(self.best_acc_epoch)+'*'))[0]
+            weights_path = glob.glob(os.path.join(self.arg.work_dir, 'runs-'+str(self.best_acc_epoch)+'*'))[-1]
             weights = torch.load(weights_path)
             self.model.load_state_dict(weights)
 
             self.arg.print_log = False
             self.eval(epoch=0, save_score=True, loader_name=['test'])
             self.arg.print_log = True
-
 
             num_params = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
             self.print_log(f'Best accuracy: {self.best_acc}')
